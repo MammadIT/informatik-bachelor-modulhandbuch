@@ -1,6 +1,6 @@
 # Informatik Bachelor Modulhandbuch
 
-Eine übersichtliche Website für die Module des Informatik-Bachelors an der Westfälischen Hochschule.
+Eine übersichtliche, inoffizielle Website für die Module des Informatik-Bachelors an der Westfälischen Hochschule.
 
 ## Website
 - https://mammadit.github.io/informatik-bachelor-modulhandbuch/
@@ -13,8 +13,8 @@ Eine übersichtliche Website für die Module des Informatik-Bachelors an der Wes
 - Ansicht nach Semestern
 
 ## Hintergrund
-- Das offizielle Modulhandbuch war an vielen Stellen etwas unübersichtlich und verstreut.
-- Diese Website bereitet die Inhalte deshalb kompakter und leichter nutzbar auf.
+- Das offizielle Modulhandbuch war etwas unübersichtlich und verstreut.
+- Diese Website bereitet die Inhalte deshalb kompakter und übersichtlicher auf.
 
 ## Mithelfen
 - Fehler gefunden?
