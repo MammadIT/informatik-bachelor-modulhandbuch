@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curriculum Explorer · Informatik Bachelor · WH Gelsenkirchen</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2335;
+    --border: rgba(255,255,255,0.07);
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555d72;
+    --pflicht: #4f8ef7;
+    --wahlpflicht: #7c3aed;
+    --shadow: 0 4px 32px rgba(0,0,0,0.5);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 1.5rem;
+    height: 64px;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem; color: var(--text);
+    display: flex; align-items: center; gap: .5rem;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--accent); }
+  .search-wrap {
+    flex: 1; max-width: 380px; position: relative;
+  }
+  .search-wrap input {
+    width: 100%; padding: .55rem 1rem .55rem 2.6rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: inherit; font-size: .9rem;
+    transition: border-color .2s;
+    outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap .icon {
+    position: absolute; left: .8rem; top: 50%; transform: translateY(-50%);
+    color: var(--text3); pointer-events: none;
+  }
+  .filter-pills {
+    display: flex; gap: .4rem; flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .pill {
+    padding: .3rem .8rem; border-radius: 20px; font-size: .78rem;
+    font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); transition: all .2s;
+    white-space: nowrap;
+  }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pill.active.wp { background: var(--wahlpflicht); border-color: var(--wahlpflicht); }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 1400px; margin: 0 auto;
+    padding: 3rem 2rem 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e8eaf0 30%, #4f8ef7);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: .5rem;
+  }
+  .hero p { color: var(--text2); font-size: 1rem; }
+  .stats {
+    display: flex; gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap;
+  }
+  .stat { font-size: .85rem; color: var(--text2); }
+  .stat strong { color: var(--accent); font-size: 1.4rem; display: block; font-weight: 600; }
+
+  /* ── MAIN GRID ── */
+  .layout { display: flex; gap: 0; max-width: 1400px; margin: 0 auto; }
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    padding: 1.5rem 1rem 3rem;
+    border-right: 1px solid var(--border);
+    position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto;
+  }
+  .sidebar h3 {
+    font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text3); margin-bottom: .75rem; padding: 0 .5rem;
+  }
+  .sidebar-item {
+    padding: .5rem .75rem; border-radius: 8px;
+    font-size: .875rem; color: var(--text2); cursor: pointer;
+    transition: all .15s; display: flex; align-items: center;
+    gap: .5rem; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(79,142,247,.15); color: var(--accent); }
+  .sidebar-item .badge {
+    margin-left: auto; font-size: .7rem; background: var(--surface2);
+    border-radius: 10px; padding: 1px 6px; color: var(--text3);
+  }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 1rem .5rem; }
+
+  /* ── BOARD ── */
+  .board { flex: 1; padding: 1.5rem 2rem 4rem; overflow-y: auto; }
+
+  /* ── SEMESTER SECTION ── */
+  .sem-section { margin-bottom: 2.5rem; }
+  .sem-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .sem-label {
+    font-family: 'DM Mono', monospace; font-size: .75rem;
+    font-weight: 500; padding: .2rem .7rem;
+    border-radius: 4px; letter-spacing: .05em;
+    background: rgba(79,142,247,.1); color: var(--accent);
+    border: 1px solid rgba(79,142,247,.2);
+  }
+  .sem-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem; color: var(--text);
+  }
+  .sem-lp { font-size: .8rem; color: var(--text3); margin-left: auto; }
+  .sem-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  /* ── COURSE CARD ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    cursor: pointer; transition: all .2s;
+    position: relative; overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(79,142,247,.12);
+  }
+  .card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+  .card.pflicht::before { background: var(--pflicht); }
+  .card.wahlpflicht::before { background: var(--wahlpflicht); }
+
+  .card-top { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .75rem; }
+  .card-kuerzel {
+    font-family: 'DM Mono', monospace; font-size: .72rem;
+    font-weight: 500; padding: .2rem .5rem;
+    background: var(--surface2); border-radius: 4px;
+    color: var(--text3); flex-shrink: 0; letter-spacing: .03em;
+  }
+  .card-badges { margin-left: auto; display: flex; gap: .3rem; align-items: center; }
+  .badge-lp {
+    font-size: .72rem; background: rgba(16,185,129,.1);
+    color: var(--accent3); border: 1px solid rgba(16,185,129,.2);
+    border-radius: 4px; padding: .1rem .4rem; font-weight: 500;
+  }
+  .badge-icon {
+    font-size: .9rem; opacity: .7;
+    title: "Hat Voraussetzungen";
+  }
+  .card-name {
+    font-size: .95rem; font-weight: 500; line-height: 1.35;
+    margin-bottom: .5rem; color: var(--text);
+  }
+  .card-meta { display: flex; gap: .75rem; flex-wrap: wrap; }
+  .card-meta span {
+    font-size: .75rem; color: var(--text3);
+    display: flex; align-items: center; gap: .25rem;
+  }
+  .prereq-chips {
+    margin-top: .75rem; display: flex; gap: .3rem; flex-wrap: wrap;
+  }
+  .prereq-chip {
+    font-size: .68rem; font-family: 'DM Mono', monospace;
+    padding: .1rem .4rem; border-radius: 3px;
+    background: rgba(79,142,247,.1); color: var(--accent);
+    border: 1px solid rgba(79,142,247,.15);
+  }
+
+  /* ── MODAL ── */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,7,12,.8); backdrop-filter: blur(4px);
+    z-index: 200; align-items: flex-start; justify-content: flex-end;
+  }
+  .overlay.open { display: flex; }
+  .drawer {
+    width: min(640px, 100vw); height: 100vh;
+    background: var(--surface); border-left: 1px solid var(--border);
+    overflow-y: auto; display: flex; flex-direction: column;
+    animation: slideIn .3s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .drawer-header {
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--surface); z-index: 1;
+  }
+  .drawer-close {
+    position: absolute; top: 1.25rem; right: 1.25rem;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface2);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text2); transition: all .2s; font-size: 1rem;
+  }
+  .drawer-close:hover { border-color: var(--danger); color: var(--danger); }
+  .drawer-kuerzel {
+    font-family: 'DM Mono', monospace; font-size: .8rem;
+    color: var(--accent); margin-bottom: .4rem; letter-spacing: .05em;
+  }
+  .drawer-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; color: var(--text); line-height: 1.2;
+    padding-right: 2.5rem;
+  }
+  .drawer-subtitle { font-size: .85rem; color: var(--text2); margin-top: .25rem; }
+  .meta-row {
+    display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem;
+  }
+  .meta-chip {
+    display: flex; align-items: center; gap: .3rem;
+    font-size: .78rem; padding: .3rem .7rem; border-radius: 20px;
+    border: 1px solid var(--border); color: var(--text2);
+    background: var(--surface2);
+  }
+  .meta-chip.hl { border-color: rgba(79,142,247,.3); color: var(--accent); background: rgba(79,142,247,.08); }
+  .meta-chip.green { border-color: rgba(16,185,129,.3); color: var(--accent3); background: rgba(16,185,129,.08); }
+  .meta-chip.amber { border-color: rgba(245,158,11,.3); color: var(--warn); background: rgba(245,158,11,.08); }
+
+  .drawer-body { padding: 1.5rem 1.75rem; flex: 1; }
+  .section {
+    margin-bottom: 1.75rem;
+  }
+  .section-title {
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text3); margin-bottom: .75rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-content {
+    font-size: .9rem; color: var(--text2); line-height: 1.65;
+  }
+  .content-list {
+    list-style: none; display: flex; flex-direction: column; gap: .4rem;
+  }
+  .content-list li {
+    padding: .4rem .75rem; border-radius: 6px;
+    background: var(--surface2); font-size: .875rem;
+    color: var(--text2); border-left: 2px solid var(--border);
+    line-height: 1.4;
+  }
+
+  /* Prereq graph */
+  .prereq-graph {
+    display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem;
+  }
+  .prereq-node {
+    padding: .4rem .8rem; border-radius: 8px;
+    border: 1px solid rgba(79,142,247,.25);
+    background: rgba(79,142,247,.07); color: var(--accent);
+    font-size: .82rem; cursor: pointer;
+    transition: all .2s; font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .prereq-node:hover {
+    background: rgba(79,142,247,.2); transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79,142,247,.2);
+  }
+  .prereq-node.official { border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.07); color: var(--warn); }
+  .prereq-node.official:hover { background: rgba(245,158,11,.15); box-shadow: 0 4px 12px rgba(245,158,11,.15); }
+
+  /* ── STUDIENVERLAUF SECTION ── */
+  .guide-section {
+    background: linear-gradient(135deg, rgba(79,142,247,.06), rgba(124,58,237,.06));
+    border: 1px solid rgba(79,142,247,.15); border-radius: 16px;
+    padding: 2rem; max-width: 1400px; margin: 0 auto 3rem;
+    margin-left: 2rem; margin-right: 2rem;
+  }
+  .guide-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem; margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: .75rem;
+  }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .guide-card {
+    background: rgba(255,255,255,.03); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+  }
+  .guide-card h4 {
+    font-size: .85rem; font-weight: 600; margin-bottom: .5rem;
+    color: var(--text);
+  }
+  .guide-card p { font-size: .82rem; color: var(--text2); line-height: 1.6; }
+  .guide-card .icon { font-size: 1.4rem; margin-bottom: .5rem; }
+
+  /* ── WAHLPFLICHT BANNER ── */
+  .wp-section { margin-bottom: 2.5rem; }
+  .wp-header {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
+  }
+  .wp-label {
+    font-family: 'DM Mono', monospace; font-size: .75rem;
+    padding: .2rem .7rem; border-radius: 4px;
+    background: rgba(124,58,237,.1); color: var(--wahlpflicht);
+    border: 1px solid rgba(124,58,237,.2);
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* empty state */
+  .empty { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+  .empty span { font-size: 3rem; display: block; margin-bottom: 1rem; }
+
+  /* mobile */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .header-inner { gap: .75rem; }
+    .filter-pills { display: none; }
+    .guide-section { margin-left: 1rem; margin-right: 1rem; }
+    .board { padding: 1rem; }
+  }
+  @media (max-width: 640px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .stats { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">📚 <span>Curriculum</span>Explorer</div>
+    <div class="search-wrap">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Suche nach Modul oder Kürzel …" autocomplete="off">
+    </div>
+    <div class="filter-pills">
+      <button class="pill active" data-filter="all">Alle</button>
+      <button class="pill" data-filter="pflicht">Pflicht</button>
+      <button class="pill wp" data-filter="wahlpflicht">Wahlpflicht</button>
+      <button class="pill" data-filter="hasPrereq">Mit Voraussetzungen</button>
+    </div>
+  </div>
+</header>
+
+<div style="max-width:1400px;margin:0 auto">
+  <div class="hero">
+    <h1>Informatik Bachelor<br>PO 2023 — Modulübersicht</h1>
+    <p>Westfälische Hochschule · Fachbereich Informatik und Kommunikation</p>
+    <div class="stats">
+      <div class="stat"><strong id="statTotal">–</strong>Module gesamt</div>
+      <div class="stat"><strong id="statPflicht">–</strong>Pflichtmodule</div>
+      <div class="stat"><strong id="statWP">–</strong>Wahlpflichtmodule</div>
+      <div class="stat"><strong id="statLP">–</strong>LP Pflicht</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="board" id="board"></main>
+</div>
+
+<!-- Drawer -->
+<div class="overlay" id="overlay">
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <button class="drawer-close" id="drawerClose">✕</button>
+      <div class="drawer-kuerzel" id="dKuerzel"></div>
+      <div class="drawer-name" id="dName"></div>
+      <div class="drawer-subtitle" id="dSubtitle"></div>
+      <div class="meta-row" id="dMeta"></div>
+    </div>
+    <div class="drawer-body" id="dBody"></div>
+  </div>
+</div>
+
+<script>
+// ─────────── DATA ───────────
+const modules = [
+  // ═══ SEMESTER 1 ═══
+  {
+    id:"EPR", name:"Einführung in die Programmierung", kuerzel:"EPR",
+    subtitle:"Grundlagen und Prinzipien der Programmierung",
+    semester:1, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Marcel Luis",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden kennen und verstehen die grundlegenden Elemente der imperativen und objektorientierten Programmierung. Sie können Rekursion und Iteration adäquat zur Realisierung wiederholender Abläufe einsetzen. Sie gewinnen ein grundlegendes Verständnis für Effizienz und Korrektheit und sind in der Lage, zu einfachen Aufgabenstellungen qualitativ gute Lösungen in Java zu konzipieren und zu realisieren.",
+    inhalte:["Begriff des Algorithmus","Elementare Datentypen","Typen und Werte von Ausdrücken","Rekursion und Strategien zur Entwicklung rekursiver Lösungen","Klassen und Objekte","Statische und Instanzmethoden","Dokumentation von Klassen und Methoden","Kontrollstrukturen","Entwurfsansätze für iterative Lösungen","Kapselung und Abstraktion","Felder","Rekursive Datenstrukturen"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Goll/Heinisch: Java als erste Programmiersprache; Ullenboom: Java ist auch eine Insel"
+  },
+  {
+    id:"LDS", name:"Logik und diskrete Strukturen", kuerzel:"LDS",
+    subtitle:"",
+    semester:1, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Wolfram Conen",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden erkennen die grundlegende Bedeutung von diskreten Strukturen für Analyse, Darstellung und Lösung von Problemen in der Informatik. Sie beherrschen die elementaren automatisierten Beweisverfahren der Logik, kennen die Grundbegriffe der Graphentheorie und beherrschen die Grundzüge der RSA-Verschlüsselung sowie des bayes'schen Schließens.",
+    inhalte:["Historischer Abriss zur Entwicklung der Logik (Frege, Russell, Hilbert, Gödel, Turing)","Grenzen der Berechenbarkeit","Bool'sche Schaltkreise","Mengenlehre (Abzählbarkeit, Funktionen)","Aussagenlogik und Klassenkalkül","Zahlentheorie (RSA)","Entscheidungsbäume","Diskrete Wahrscheinlichkeiten / Naive Bayes","Graphentheorie (Wegfindung)","Kombinatorik"],
+    pruefung:"Klausur (75 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Schöning: Logik für Informatiker; Schöning: Ideen der Informatik"
+  },
+  {
+    id:"MGR", name:"Mathematische Grundlagen", kuerzel:"MGR",
+    subtitle:"",
+    semester:1, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"4 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Laura Anderle",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden kennen und verstehen grundlegende Begriffe der Mathematik, insbesondere der Analysis. Sie können Rechentechniken von Hand und anhand einfacher Programmierung (Python) anwenden und einfache mathematische Modelle erstellen, interpretieren und anwenden.",
+    inhalte:["Zahlenräume und Zahlendarstellung im Rechner","Folgen (rekursiv/explizit), vollständige Induktion, Konvergenz","Funktionen: Stetigkeit, Differenzierbarkeit, Krümmungsverhalten","Taylorpolynome, Splines, numerische Integration","Ausblick auf mathematische Modelle in der Informatik"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Weitz: Konkrete Mathematik; Papula: Mathematik für Ingenieure Band 1"
+  },
+  {
+    id:"TGI", name:"Technische Grundlagen der Informatik", kuerzel:"TGI",
+    subtitle:"",
+    semester:1, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Christian Jestel, M. Sc.",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden kennen den grundlegenden Aufbau und die Funktionsweise der Hardware von Rechnern. Sie verstehen grundlegende Abhängigkeiten zwischen Performanz von Software und Hardware.",
+    inhalte:["Geschichtliches, Moore'sches Gesetz, Prozessor-Generationen","Rechner: Komponenten, Struktur, Funktionsweise, Buskommunikation","Logikbausteine: Kombinatorische und sequentielle Logik","Prozessoren: RISC vs. CISC, Pipelining","Speicher: Speichertechnologien, Speicherhierarchie, Cache","Assemblerbeispiele als Brückenschlag zur Software"],
+    pruefung:"Klausur",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Häberlein: Technische Informatik; Hoffmann: Grundlagen der Technischen Informatik"
+  },
+  {
+    id:"TENI", name:"Technisches Englisch für Informatiker", kuerzel:"TENI",
+    subtitle:"",
+    semester:1, lp:5, type:"pflicht", sprache:"Englisch",
+    lehrform:"4 SWS seminaristische Veranstaltung",
+    dozent:"Dozent:in des Sprachenzentrums",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["Fortgeschrittene Englischkenntnisse (Niveau Klasse 11/12)"],
+    lernziele:"Die Studierenden erwerben berufsorientierte englischsprachige Diskurs- und Handlungskompetenz unter Berücksichtigung (inter-)kultureller Elemente.",
+    inhalte:["AI (Artificial Intelligence)","Basic Geometric and Mathematical Terminology","Biometric Systems","Diagrammatic Representation","Display Technology","Networking","Online Security Threats","Robotics","SDLC (Software Development Life Cycle)"],
+    pruefung:"Klausur (120 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Wird in der ersten Veranstaltung bekannt gegeben"
+  },
+
+  // ═══ SEMESTER 2 ═══
+  {
+    id:"ADS", name:"Algorithmen und Datenstrukturen", kuerzel:"ADS",
+    subtitle:"",
+    semester:2, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Wolfram Conen",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["LDS","EPR"],
+    lernziele:"Die Studierenden kennen wichtige grundlegende Resultate und Methoden der Algorithmik und können diese auf ausgewählte Problemstellungen anwenden. Sie gewinnen detaillierte Einblicke in die problemspezifische Optimierung von Algorithmen mittels geeignet gewählter Datenstrukturen und beherrschen die Grundzüge der Analyse von Algorithmen.",
+    inhalte:["Sortieren (Quick-/Heap-/Bucketsort, Priority-Queues)","Problemlösung mittels Suche (Baumstrukturen, Tiefen-/Breitensuche, A*)","Zugriffsstrukturen (Indices, Hashing)","Greedy-Algorithmen (Kruskal, Huffman, Fractional Knapsack)","Komplexität und NP-Probleme","Algorithmik: Dijkstra-Varianten, MST","Approximation (TSP/MST)","Analyse von Algorithmen (Kosten, Optimalität, Approximierbarkeit)"],
+    pruefung:"Klausur (75 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Cormen et al.: Introduction to Algorithms; Skiena: Algorithm Design Manual"
+  },
+  {
+    id:"BSY", name:"Betriebssysteme", kuerzel:"BSY",
+    subtitle:"Einführung in technologische und organisatorische Konzepte moderner Betriebssysteme",
+    semester:2, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Andreas Cramer",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["TGI"],
+    lernziele:"Die Studierenden lernen die grundlegenden Konzepte und Verfahren von Betriebssystemen kennen und erlangen die Fähigkeit, neue Betriebssystemkonzepte schnell zu begreifen, einzuordnen und zu bewerten.",
+    inhalte:["Einführung in Betriebssysteme","Prozesse","Speicherverwaltung","Dateisystem","Ein-/Ausgabe","Unix"],
+    pruefung:"Klausur",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Bekanntgabe in der Vorlesung"
+  },
+  {
+    id:"OPR", name:"Objektorientierte Programmierung", kuerzel:"OPR",
+    subtitle:"Objektorientierte Konzepte, Lambdas und Streams verstehen und effektiv anwenden",
+    semester:2, lp:7, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Marcel Luis",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR"],
+    lernziele:"Die Studierenden kennen alle wesentlichen Konzepte der objektorientierten Programmierung sowie typische Problemstellungen. Sie kennen Lambdas und Streams aus der funktionalen Programmierung, beherrschen Standardklassen (Collections, I/O) in Java und erlernen das Schreiben von Unit-Tests als untrennbaren Bestandteil des Programmierablaufs.",
+    inhalte:["Klassenhierarchie und Polymorphie","Testautomatisierung mit JUnit","Collection-Klassen","Ausnahmen","Schnittstellen","Entwurfsmuster (am Beispiel)","Lambda-Ausdrücke","Streams","Ein-/Ausgabe","Aufzählungstypen","Parallelität"],
+    pruefung:"Klausur (120 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Goll/Heinisch: Java als erste Programmiersprache; Fowler: Refactoring"
+  },
+  {
+    id:"SLA", name:"Statistik und Lineare Algebra", kuerzel:"SLA",
+    subtitle:"",
+    semester:2, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"4 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Laura Anderle",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["MGR"],
+    lernziele:"Die Studierenden kennen und verstehen grundlegende Konzepte der linearen Algebra und Statistik. Sie beherrschen Rechentechniken und können Ergebnisse im anwendungsorientierten Kontext interpretieren sowie statistische Aussagen auf Basis vorgegebener Datensätze treffen.",
+    inhalte:["Vektoren im Anschauungs- und abstrakten Vektorraum","Lineare Gleichungssysteme und Matrizen (Gauß-Jordan)","Lineare Abbildungen, Determinanten, Eigenwerte","Deskriptive Statistik","Diskrete Zufallsvariablen und Verteilungen","Normalverteilung","Statistische Tests (t-Test, z-Test)","Hauptkomponentenanalyse"],
+    pruefung:"Klausur (60 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Weitz: Konkrete Mathematik; Papula: Mathematik für Ingenieure Band 2+3"
+  },
+  {
+    id:"THI", name:"Theoretische Informatik", kuerzel:"THI",
+    subtitle:"",
+    semester:2, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Ulrike Griefahn",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","LDS","MGR"],
+    lernziele:"Die Studierenden können mit den wesentlichen Grundbegriffen der theoretischen Informatik umgehen, die Korrektheit einfacher Algorithmen nachweisen und die Komplexität einfacher Algorithmen formal herleiten.",
+    inhalte:["Programmverifikation","Komplexität und Komplexitätsklassen","Berechenbarkeit und Berechnungsmodelle","Formale Sprachen und Chomsky-Hierarchie","Endliche Automaten und reguläre Sprachen","Kontextfreie Sprachen und Kellerautomaten"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Hoffmann: Theoretische Informatik; Schöning: Theoretische Informatik – kurzgefasst"
+  },
+
+  // ═══ SEMESTER 3 ═══
+  {
+    id:"DBA", name:"Datenbanksysteme", kuerzel:"DBA",
+    subtitle:"",
+    semester:3, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Katja Zeume",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR"],
+    lernziele:"Die Studierenden kennen die Grundlagen von Datenbanksystemen und deren Einsatz in der Praxis. Sie können Realweltausschnitte modellieren und in Datenbankschemata überführen sowie SQL-basierte Informationssysteme entwickeln und optimieren.",
+    inhalte:["Einführung in Datenbanksysteme","Anwendungsfälle in der Praxis","Das DBMS und seine Komponenten","Datenbankschemata und Konsistenzbedingungen","Relationale Algebra","Grundlagen SQL und SQL-Optimierung","(Optional) XML","(Optional) NOSQL-Datenbanken"],
+    pruefung:"Klausur (75 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Heuer/Sattler/Saake: Datenbanken; Elmasri/Navathe: Grundlagen von Datenbanksystemen"
+  },
+  {
+    id:"INS", name:"Internet-Sprachen", kuerzel:"INS",
+    subtitle:"",
+    semester:3, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Andreas Cramer",
+    voraussetzungenPO:["EPR"],
+    empfohleneVoraussetzungen:["EPR","OPR"],
+    lernziele:"Die Studierenden lernen unterschiedliche Beschreibungssprachen und deren Einsatzgebiete kennen. Sie erlernen Verfahren zur Erstellung dynamischer Webseiten und erlangen die Fähigkeit, neue Konzepte im Umfeld der Internet-Sprachen schnell zu begreifen.",
+    inhalte:["HTML","CSS","PHP","XML, XML-Schema, XSLT","JavaScript, AJAX","Web-Services"],
+    pruefung:"Klausur",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Bekanntgabe in der Vorlesung"
+  },
+  {
+    id:"MCI", name:"Mensch-Computer-Interaktion", kuerzel:"MCI",
+    subtitle:"",
+    semester:3, lp:6, type:"pflicht", sprache:"Deutsch, Englisch bei Bedarf",
+    lehrform:"3 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr. Markus Jelonek",
+    voraussetzungenPO:["EPR"],
+    empfohleneVoraussetzungen:["EPR","OPR"],
+    lernziele:"Die Studierenden können einfache grafische Benutzeroberflächen mit JavaFX implementieren und einfache Benutzeroberflächen gestalten und kritisieren. Sie können die Phasen mensch-zentrierter Entwicklung auf definierte Problemstellungen anwenden.",
+    inhalte:["Grundlagen mensch-zentrierter Entwicklung","Sensorische Wahrnehmung, Mentale Modelle","Interaktionsstile, -technologien und -prinzipien","Benutzerführung, Meldungen, Eingabeprüfungen","Barrierefreiheit","Programmierung grafischer Benutzeroberflächen (JavaFX)"],
+    pruefung:"Klausur, mündliche Prüfung oder Kombinationsprüfung",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Heinecke: Mensch-Computer-Interaktion; Hartson/Pyla: The UX Book"
+  },
+  {
+    id:"REN", name:"Rechnernetze", kuerzel:"REN",
+    subtitle:"",
+    semester:3, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Tobias Urban",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden kennen den grundlegenden Aufbau konvergenter Netze und grundlegende Konzepte moderner LANs mit VLANs. Sie können beim Design, Aufbau und Betrieb mittelgroßer LANs eingesetzt werden und kennen grundlegende Eigenschaften von WANs und des Internets.",
+    inhalte:["Grundbegriffe, Netztopologien","ISO/OSI-Schichtenmodell und Internet-Architektur","Übertragungsmedien, Bitübertragung, Codierung","Schicht 2: Ethernet, LLC, MAC, Switching, VLANs, Spanning Tree","Schicht 3: Internet-Adressierung, statisches und dynamisches Routing","Grundlagen zu WAN und Internet","Einführung TCP, UDP und Anwendungsschichtprotokolle"],
+    pruefung:"Klausur",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Riggert/Lübben: Rechnernetze; Cisco Press Fundamentals-Reihe"
+  },
+  {
+    id:"SWT", name:"Softwaretechnik", kuerzel:"SWT",
+    subtitle:"Gute Software professionell entwickeln",
+    semester:3, lp:6, type:"pflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Michael Schmeing",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR"],
+    lernziele:"Die Studierenden kennen den typischen Lebenszyklus eines Softwaresystems, verstehen Begriffe wie Requirements, Architektur, Design, DevOps und Testing und können Software-Design mit UML entwerfen und dokumentieren.",
+    inhalte:["Einführung in die Softwaretechnik","Vorgehensmodelle","Requirements-Engineering","Software-Architektur","Software-Design und Implementierung","Qualität","Tests","DevOps","Software-Betrieb"],
+    pruefung:"Klausur (60 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Sommerville: Software Engineering; SWEBOK v4.0"
+  },
+
+  // ═══ SEMESTER 4+5 (Softwareprojekt) ═══
+  {
+    id:"SPIN", name:"Softwareprojekt Informatik", kuerzel:"SPIN",
+    subtitle:"",
+    semester:4, lp:12, type:"pflicht", sprache:"Deutsch",
+    lehrform:"4. Sem: 2 SWS Vorlesung, 2 SWS Übung, 1 SWS Praktikum; 5. Sem: 1 SWS Praktikum",
+    dozent:"Alle Professor:innen der Fachgruppe Informatik",
+    voraussetzungenPO:["EPR","OPR","ADS"],
+    empfohleneVoraussetzungen:["MCI","SWT","DBA","INS"],
+    lernziele:"Die Studierenden sind in der Lage, durch wissenschaftliches Vorgehen für praktische Problemstellungen den Stand der Technik zu recherchieren, Anforderungen zu analysieren, Lösungen zu entwickeln und Arbeitsergebnisse professionell zu präsentieren. Sie können grundlegende Management-Methoden zur Projektdefinition, -planung und -kontrolle anwenden.",
+    inhalte:["Grundlagen des wissenschaftlichen Arbeitens","Recherche, Analyse, Erstellen wissenschaftlicher Texte, Präsentation","Projektdefinition und -planung","Konfigurationsmanagement","Projektkontrolle und -steuerung","Durchführung eines mittelgroßen Softwareprojekts im Team","Versionsverwaltung und Ticketsysteme"],
+    pruefung:"Kombinationsprüfung: Testat (unbenotet) + Projektleistung",
+    turnus:"Sommersemester, jährlich (über 2 Semester)",
+    literatur:"Theisen: Wissenschaftliches Arbeiten; Burghardt: Einführung in Projektmanagement"
+  },
+
+  // ═══ SEMESTER 6 ═══
+  {
+    id:"PXP", name:"Praxisphase", kuerzel:"PXP",
+    subtitle:"",
+    semester:6, lp:15, type:"pflicht", sprache:"Deutsch",
+    lehrform:"Praktische Arbeit in einem Betrieb (12 Wochen) + Bericht",
+    dozent:"Alle Professor:innen der Fachgruppe Informatik",
+    voraussetzungenPO:["Siehe § 15 PO und § 21 Bachelor-RahmenPO"],
+    empfohleneVoraussetzungen:["Alle Modulprüfungen des 3. Fachsemesters bestanden"],
+    lernziele:"Die Praxisphase führt die Studierenden an die berufliche Tätigkeit des Informatikers heran. Die Studierenden lernen, im bisherigen Studium erworbene Kenntnisse und Fähigkeiten anzuwenden und bei der praktischen Tätigkeit gemachte Erfahrungen zu reflektieren.",
+    inhalte:["Spezielle Inhalte werden nicht vorgegeben","Tätigkeit muss der eines Informatikers entsprechen","Abschlussbericht: Überblick über Betrieb, Aktivitäten, kritische Würdigung der Studieninhalte"],
+    pruefung:"Siehe § 11 Bachelor-RahmenPO",
+    turnus:"Regulär Sommersemester, bei Bedarf auch Wintersemester",
+    literatur:"—"
+  },
+  {
+    id:"BAIN", name:"Bachelorarbeit Informatik", kuerzel:"BAIN",
+    subtitle:"Abschlussarbeit des Bachelor-Studiums der Informatik",
+    semester:6, lp:12, type:"pflicht", sprache:"Deutsch",
+    lehrform:"Bachelorarbeit",
+    dozent:"Alle Professor:innen der Fachgruppe Informatik",
+    voraussetzungenPO:["Siehe § 16 PO und § 23 BRPO"],
+    empfohleneVoraussetzungen:["150 Leistungspunkte"],
+    lernziele:"Die Studierenden sind in der Lage, innerhalb einer vorgegebenen Frist eine praxisorientierte Aufgabe aus der praktischen Informatik sowohl in fachlichen Einzelheiten als auch in themen- und fachübergreifenden Zusammenhängen nach wissenschaftlichen und fachpraktischen Methoden selbstständig zu bearbeiten und zu dokumentieren.",
+    inhalte:["Praxisorientiertes Problem aus der Informatik","Erarbeitung mit im Studium erlernten Konzepten","Anleitung durch erfahrenen Betreuer"],
+    pruefung:"Siehe § 24 und § 25 BRPO",
+    turnus:"Vergabe jederzeit möglich",
+    literatur:"Franck/Stary: Technik wissenschaftlichen Arbeitens; Karmasin/Ribing: Gestaltung wissenschaftlicher Arbeiten"
+  },
+  {
+    id:"KBIN", name:"Kolloquium zur Bachelorarbeit", kuerzel:"KBIN",
+    subtitle:"Abschlussprüfung im Bachelor-Studium der Informatik",
+    semester:6, lp:3, type:"pflicht", sprache:"Deutsch",
+    lehrform:"Kolloquium",
+    dozent:"Alle Professor:innen der Fachgruppe",
+    voraussetzungenPO:["Siehe § 26 BRPO"],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden sind in der Lage, die Ergebnisse der Bachelorarbeit, ihre fachlichen und methodischen Grundlagen sowie fächerübergreifende Zusammenhänge mündlich in begrenzter Zeit zu präsentieren und Fragen zu beantworten.",
+    inhalte:["Vortrag über die Bachelorarbeit","Diskussion und Fragen zur Arbeit","Bewertung und Ausblick"],
+    pruefung:"Mündliche Prüfung (Vortrag + Diskussion)",
+    turnus:"Ca. 2 Wochen nach Abgabe der Bachelorarbeit",
+    literatur:"Kuzbari/Ammer: Der wissenschaftliche Vortrag"
+  },
+
+  // ═══ WAHLPFLICHTMODULE ═══
+  {
+    id:"BKV", name:"Betrieb komplexer verteilter Systeme", kuerzel:"BKV",
+    subtitle:"",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr. Andreas Cramer",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["BSY","REN"],
+    lernziele:"Die Studierenden lernen unterschiedliche Technologien und Konzepte kennen, die für den Betrieb großer IT-Infrastrukturen notwendig sind, und bekommen erste praktische Erfahrungen mit deren Anwendung.",
+    inhalte:["Einführung","Speichernetze","Virtualisierung","System-Management"],
+    pruefung:"Klausur oder mündliche Prüfung",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Bekanntgabe in der Vorlesung"
+  },
+  {
+    id:"BV", name:"Einführung in die Bildverarbeitung", kuerzel:"BV",
+    subtitle:"",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 2 SWS Praktikum",
+    dozent:"Prof. Dr.-Ing. Hartmut Surmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR","ADS","MGR","SLA"],
+    lernziele:"Die Studierenden lernen die Begriffe und Verfahren der digitalen Bildverarbeitung und die Konzepte und Methoden deren Programmierung kennen. Sie können diese effektiv bei der Entwicklung eigener Bildverarbeitungsprogramme einsetzen und Bibliotheken (OpenCV, CNNs) verwenden.",
+    inhalte:["Grundlagen / Begriffsbildung","Kameras","Bildverarbeitungsoperationen","Bildsegmentierung","Merkmale von Objekten","Klassifikation","Neuronale Netze, CNNs","Lehrsprachen: C/C++, Python"],
+    pruefung:"Mündliche Prüfung (30 Min.) oder Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Steinmüller: Bildanalyse; Kaehler/Bradski: Learning OpenCV 3"
+  },
+  {
+    id:"DOW", name:"Data on the Web", kuerzel:"DOW",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr. Katja Zeume",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["DBA"],
+    lernziele:"Die Studierenden kennen die gängigen Anwendungsfelder der webbasierten Datenverarbeitung und lernen ihre Kenntnisse über relationale Datenbanksysteme mit weiterführenden Technologien zu erweitern.",
+    inhalte:["Objekt-relationales Mapping (ORM-Frameworks)","Verschiedene Datenformate (strukturiert, semi-strukturiert, unstrukturiert)","NOSQL-Datenbanken (Graphdatenbanken)","Weitere Datenbankformate (Dokumenten-DB)","Cloud-Technologien für datenbasierte Anwendungen"],
+    pruefung:"Klausur (75 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Müller/Wehr: Java Persistence API"
+  },
+  {
+    id:"DSP", name:"Data Science in Practice", kuerzel:"DSP",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch oder Englisch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Übung",
+    dozent:"Prof. Dr. Laura Anderle",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["MGR","SLA"],
+    lernziele:"Die Studierenden sind in der Lage, eine anwendungsorientierte Fragestellung mit Hilfe von Data Science-Methoden zu beantworten und Daten, Methoden und Ergebnisse fachfremden erläutern zu können.",
+    inhalte:["Datenexploration, -visualisierung und deskriptive Analysen","Überblick über Methodiken","Regressions-, Klassifikations- oder Clusteringmethoden","Datenanalyse mit Python oder R","Vorstellung und Diskussion der Ergebnisse"],
+    pruefung:"Klausur und/oder schriftliche Ausarbeitung und/oder mündliche Prüfung",
+    turnus:"Sommersemester, bei Bedarf",
+    literatur:"Abdel-Karim: Data Science Best Practices mit Python; Grus: Einführung in Data Science"
+  },
+  {
+    id:"ECC", name:"Einführung in Cloud Computing", kuerzel:"ECC",
+    subtitle:"",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr. Lars Gleim",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["BSY","REN","DBA"],
+    lernziele:"Die Studierenden erwerben fundierte Kenntnisse über Cloud Computing-Technologien. Sie können Container-Technologien und Orchestrierungsplattformen einsetzen, Cloud-native Entwicklungsprinzipien anwenden und DevOps-Prozesse sowie CI/CD-Pipelines gestalten.",
+    inhalte:["Cloud-Grundlagen: IaaS, PaaS, SaaS, Virtualisierung, Container","Container-Orchestrierung: Docker, Kubernetes","Cloud-Infrastruktur: Speicher, Netzwerke, Sicherheit, Identity Management","Cloud-Native Development: Microservices, Serverless, Observability","DevOps und Automation: IaC, CI/CD-Pipelines","Cloud Management: Cost Optimization, Governance, Migration"],
+    pruefung:"Klausur oder schriftliche Ausarbeitung oder mündliche Prüfung oder Kombinationsprüfung",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Comer: The Cloud Computing Book; Kratzke: Cloud-native Computing"
+  },
+  {
+    id:"EMI", name:"Einführung in die medizinische Informatik", kuerzel:"EMI",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Übung",
+    dozent:"Prof. Dr. Laura Anderle",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["MGR","SLA"],
+    lernziele:"Die Studierenden sind in der Lage, das Fachgebiet Medizinische Informatik zu überblicken, Zusammenhänge zwischen Anwendungsbereichen herzustellen und die notwendigen IT-Grundlagen zu kennen.",
+    inhalte:["Überblick über Teilgebiete der medizinischen Informatik","Medizinische Prozesse, Dokumentation, Informationssysteme","Bildgebende Verfahren und Biosignale","Klinische und epidemiologische Studien","Einführung in rechtliche Aspekte"],
+    pruefung:"Klausur und/oder schriftliche Ausarbeitung und/oder mündliche Prüfung",
+    turnus:"Sommer- oder Wintersemester, bei Bedarf",
+    literatur:"Lehmann et al.: Handbuch der Medizinischen Informatik"
+  },
+  {
+    id:"ERO", name:"Einführung in die Robotik", kuerzel:"ERO",
+    subtitle:"Grundlegende Konzepte zur Entwicklung von Applikationen für Roboter/Manipulatoren",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch, Englisch bei Bedarf",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 2 SWS Praktikum",
+    dozent:"Prof. Dr.-Ing. Hartmut Surmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR","ADS","MGR","SLA"],
+    lernziele:"Die Studierenden lernen die Grundlagen, Komponenten und Begriffe von Industrierobotern und kollaborativen Robotern kennen und können Steuerungsprogramme mit ROS entwickeln.",
+    inhalte:["Grundlagen der Industrierobotik / Manipulatortechnik","Beschreibung einer Roboterstellung","Transformation Roboter-/Weltkoordinaten","Kinematik, inverse Kinematik","Roboterprogrammierung","Roboterframework ROS","Bewegungsart und Interpolation","Lehrsprachen: C/C++, Python"],
+    pruefung:"Mündliche Prüfung (30 Min.) oder Klausur (90 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Weber: Industrieroboter; Corke: Robotics, Vision & Control"
+  },
+  {
+    id:"INP", name:"Internet-Protokolle", kuerzel:"INP",
+    subtitle:"Grundlegende Kenntnisse über Kommunikationsarchitekturen und Protokolle",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Norbert Pohlmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden erhalten ein gutes Verständnis für die fundamentalen Kommunikationsarchitekturen und -protokolle des Internets sowie praktische Erfahrungen durch Protokollanalysen.",
+    inhalte:["ISO- und TCP/IP-Referenzmodell","Netzkoppelelemente: Repeater, Hubs, Bridges, Switches, Router","Vermittlungsebene: IP, ARP, ICMP, Routingprotokolle, QoS","Transportebene: TCP, UDP, RTP, Sliding-Windows","Anwendungsebene: DNS, SMTP, HTTP, SIP","Client-Server- und P2P-Architektur","Struktur und Aufbau des Internets","Grundlagen verteilter Systeme"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Tanenbaum: Computernetzwerke"
+  },
+  {
+    id:"ITR", name:"IT-Recht", kuerzel:"ITR",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Alexander Koch",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden können die relevanten rechtlichen Aspekte und gesetzlichen Regelungen als Randbedingung in ihre berufliche Arbeit einbeziehen und wissen, welche datenschutzrechtlichen Vorgaben es gibt.",
+    inhalte:["Rechtliche Aspekte bei der Erstellung und Anwendung von Softwareprodukten","Internet-, Datenschutz- und Urheberrecht","Maßgebliche europäische und deutsche Gesetze (z.B. DSGVO)"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Nach Bekanntgabe in der Vorlesung"
+  },
+  {
+    id:"ITS", name:"Grundlagen der IT-Sicherheit", kuerzel:"ITS",
+    subtitle:"Grundlegende Konzepte, Architekturen und Funktionsweisen von Sicherheitssystemen",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Norbert Pohlmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:[],
+    lernziele:"Die Studierenden erlangen ein gutes Verständnis von möglichen Angriffen und geeigneten Gegenmaßnahmen in der IT sowie Kenntnisse über Sicherheitskomponenten und -systeme.",
+    inhalte:["IT-Sicherheitslage, Cyber-Sicherheitsstrategien","Angreifer: Motivationen, Kategorien, Angriffsvektoren","Kryptographie: Private-Key, Public-Key, Hashfunktionen","Sicherheitsmodule (SmartCards, TPM)","Identifikations- und Authentikationsverfahren","ID-Management, ID-Cards","Self-Sovereign Identity (SSI)"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Pohlmann: Cyber-Sicherheit – Das Lehrbuch"
+  },
+  {
+    id:"KBE", name:"Komponentenbasierte Softwareentwicklung", kuerzel:"KBE",
+    subtitle:"Grundlegende Konzepte zum Entwurf von wiederverwendbarer Software",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Frank Laarmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["SWT","DBA","SWD"],
+    lernziele:"Die Studierenden lernen Grundlagen und Konzepte der Wiederverwendung von Software – insbesondere komponentenbasierte Software. Sie kennen die Herausforderung, gut wiederverwendbare Komponenten zu entwerfen und können passende Design-Prinzipien anwenden.",
+    inhalte:["Wiederverwendung von Software (Frameworks, Produktlinien)","Komponentenbasierte Softwareentwicklung","Komponentenmodell (Jakarta CDI-Beans)","Design von Komponenten","Optional: Jakarta Enterprise Beans"],
+    pruefung:"Klausur (75 Min.)",
+    turnus:"Sommer- oder Wintersemester, bei Bedarf",
+    literatur:"Szyperski: Component Software; Martin: Clean Architecture"
+  },
+  {
+    id:"KI", name:"Künstliche Intelligenz", kuerzel:"KI",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"3 SWS Vorlesung, 1 SWS Übung",
+    dozent:"Prof. Dr. Wolfram Conen",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["LDS","ADS","EPR","OPR"],
+    lernziele:"Die Studierenden kennen die Grundzüge der Entwicklungsgeschichte der KI, grundlegende Begriffe des maschinellen Lernens und der bayes'schen Modellierung. Sie können typische KI-Problemstellungen modellieren und lösen und kennen die Problematik der Interpretierbarkeit von Modellen.",
+    inhalte:["Entwicklungsgeschichte der KI, intelligente Agenten","Exakte und heuristische Suche","Bayes'sche Inferenz, Sampling, Filtering, Decision Making","Maschinelles Lernen: Naive Bayes, kNN, Decision Trees, Clustering","Neuronale Netze (NN, Deep-NN, Graph-NN)","Reinforcement Learning, Deep-RL","Interpretierbarkeit von KI-Modellen"],
+    pruefung:"Klausur",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Russell/Norvig: Artificial Intelligence, A Modern Approach"
+  },
+  {
+    id:"KNG", name:"Knowledge Graphs", kuerzel:"KNG",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Prof. Dr. Katja Zeume",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["DBA"],
+    lernziele:"Die Studierenden lernen die praktische Anwendung von Knowledge Graphs in der heutigen IT-Landschaft kennen und den Umgang mit Graph-Datenbank-Implementierungen (RDF, SPARQL).",
+    inhalte:["Einführung in Knowledge Graphs","Praktische Einführung Graph-Datenbank (RDF, SPARQL)","Schemasprachen für Graphen","Anfragesprachen für Graph-Datenbanken","Vergleich von Graph-Technologien"],
+    pruefung:"Klausur oder mündliche Prüfung",
+    turnus:"Sommersemester, nach Bedarf",
+    literatur:"Hitzler et al.: Foundations of Semantic Web Technologies"
+  },
+  {
+    id:"MAD", name:"Mobile Application Development", kuerzel:"MAD",
+    subtitle:"Einführung in die Entwicklung von Anwendungen für mobile Geräte",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr.-Ing. Sebastian Büttner",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["SWT","EPR"],
+    lernziele:"Die Studierenden können zentrale Plattformen der mobilen Anwendungsentwicklung einordnen, mobile Anwendungen konzipieren und implementieren sowie Progressive Web Apps und Cross-Plattform-Lösungen umsetzen.",
+    inhalte:["Grundlagen mobiler Betriebssysteme (Android, iOS)","Entwicklung nativer mobiler Anwendungen","Mobile Webentwicklung mit HTML5, JavaScript, CSS, PWA","Cross-Plattform-Entwicklung mit React Native","Prototyping und UI-Design mit Figma","KI-gestützte Methoden in der Softwareentwicklung"],
+    pruefung:"Klausur oder Kombinationsprüfung",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Liebel: Progressive Web Apps; Springer: React"
+  },
+  {
+    id:"MCC", name:"Mobile und Cloud Computing", kuerzel:"MCC",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"N.N.",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["REN"],
+    lernziele:"Die Studierenden kennen grundlegende Cloud-Technologien und verstehen die Bedeutung einer performanten Netzwerkanbindung. Sie erwerben Fähigkeiten zum Umgang mit Mobilfunksystemen.",
+    inhalte:["Grundlagen zu Cloud Computing und XaaS","Bluetooth (Ad-hoc-Netz)","GSM/UMTS/LTE (zellulares Infrastruktur-Netz)","Wireless LAN (WLAN)","LoRaWAN als IoT-Netz","Praktikum mit Versuchen zu ausgewählten Funksystemen"],
+    pruefung:"Klausur oder mündliche Prüfung",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Riwotzki: Cloud-Computing Theorie und Praxis; Trick: Mobilfunknetze der 5. Generation"
+  },
+  {
+    id:"MRO", name:"Mobile Robotik", kuerzel:"MRO",
+    subtitle:"Grundlegende Konzepte zur Entwicklung von Applikationen für mobile Roboter",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch, Englisch bei Bedarf",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 2 SWS Praktikum",
+    dozent:"Prof. Dr.-Ing. Hartmut Surmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR","ADS","MGR","SLA"],
+    lernziele:"Die Studierenden lernen die Begriffe und Komponenten von mobilen Robotern sowie Konzepte und Methoden der Programmierung kennen. Sie lernen, wie unterschiedliche Sensordaten fusioniert werden und mobile Systeme navigieren.",
+    inhalte:["Roboterprogrammierung und Roboterframework ROS","Sensorik und Aktuatorik","Lokalisierung","Kartenbau","Navigation","Planung","Lehrsprachen: C/C++, Python"],
+    pruefung:"Mündliche Prüfung (30 Min.) oder Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Hertzberg et al.: Mobile Roboter; Thrun/Burgard/Fox: Probabilistic Robotics"
+  },
+  {
+    id:"PAP", name:"Parallele Programmierung", kuerzel:"PAP",
+    subtitle:"Grundlegende Methoden und Algorithmen paralleler Programmierung",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch, Englisch bei Bedarf",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 2 SWS Praktikum",
+    dozent:"Prof. Dr.-Ing. Hartmut Surmann",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR","ADS","THI"],
+    lernziele:"Die Studierenden lernen die Grundlagen und Begriffe der parallelen Programmierung kennen und können parallele Programme entwickeln, testen und sequentielle Algorithmen parallelisieren.",
+    inhalte:["Grundlagen paralleler Programmierung","Parallele Architekturen","Design und Analyse paralleler Algorithmen","Threads, OpenMP","MPI, OpenCL","CUDA, Parallele Pattern (Map, Reduce, Scan, Sort)"],
+    pruefung:"Mündliche Prüfung (30 Min.) oder Klausur (90 Min.)",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Rauber: Parallele Programmierung; Matloff: Programming on Parallel Machines"
+  },
+  {
+    id:"PPR", name:"Prozedurale Programmierung", kuerzel:"PPR",
+    subtitle:"",
+    semester:5, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 1 SWS Übung, 1 SWS Praktikum",
+    dozent:"Lehrbeauftragte/r",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR","ADS"],
+    lernziele:"Die Studierenden kennen die Konzepte und Methoden der prozeduralen Programmierung und können diese effektiv und strukturiert bei der Entwicklung eigener Programme mit der Programmiersprache C einsetzen.",
+    inhalte:["Grundelemente von C","Funktionen und Speicherklassen","Präprozessor","Adressen und Zeiger","Dynamische Speicherverwaltung","Strukturen","Make","Überblick C++"],
+    pruefung:"Klausur (90 Min.)",
+    turnus:"Wintersemester, jährlich",
+    literatur:"Dausmann/Bröckl/Goll: C als erste Programmiersprache"
+  },
+  {
+    id:"PRAX", name:"Practical Security Attacks and Exploitation", kuerzel:"PRAX",
+    subtitle:"",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch oder Englisch",
+    lehrform:"1 SWS Vorlesung, 3 SWS Praktikum",
+    dozent:"Prof. Dr. Christian Dietrich",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["EPR","OPR"],
+    lernziele:"Die Studierenden erlangen Verständnis gängiger Verfahren zur Systemsicherheit und können Mechanismen zur Identifikation und Ausnutzung von Software-Schwachstellen anwenden sowie an Capture-the-Flag-Wettbewerben teilnehmen.",
+    inhalte:["Linux and Unix-like operating system basics","Vulnerability research","Reconnaissance and scanning","System security and operational security","Software security","Bytecode and binary code analysis","Denial-of-Service attacks","Web security","Incident response"],
+    pruefung:"Ausarbeitung und/oder Klausur oder mündliche Prüfung",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Eckert: IT-Sicherheit; Erickson: Hacking – The Art of Exploitation"
+  },
+  {
+    id:"SWD", name:"Software Design", kuerzel:"SWD",
+    subtitle:"Fortgeschrittene Programmiertechniken und Design komplexer Softwaresysteme",
+    semester:4, lp:6, type:"wahlpflicht", sprache:"Deutsch",
+    lehrform:"2 SWS Vorlesung, 2 SWS Praktikum",
+    dozent:"Prof. Dr. Michael Schmeing",
+    voraussetzungenPO:[],
+    empfohleneVoraussetzungen:["SWT","EPR","OPR"],
+    lernziele:"Die Studierenden können zentrale Entwurfsmuster situationsangemessen auswählen und anwenden sowie bestehende Software-Entwürfe hinsichtlich Kopplung, Kohäsion und Erweiterbarkeit analysieren.",
+    inhalte:["Entwurfsmuster (Strategy, Observer, Decorator, Template Method, State, Command, Memento, Composite, Visitor)","Architektur- und Designentscheidungen dokumentieren","Erkennen von Entwurfsproblemen in OO-Systemen","Durchgängiges Vorlesungsprojekt: Fantasy-Rollenspiel-Regelengine"],
+    pruefung:"Klausur oder mündliche Prüfung",
+    turnus:"Sommersemester, jährlich",
+    literatur:"Freeman/Robson: Entwurfsmuster von Kopf bis Fuß; Gamma et al.: Design Patterns"
+  }
+];
+
+// ─────────── STATE ───────────
+let activeFilter = 'all';
+let searchQuery = '';
+let activeSidebar = 'all';
+
+// ─────────── HELPERS ───────────
+function getModule(id) { return modules.find(m => m.id === id); }
+
+function getVisibleModules() {
+  return modules.filter(m => {
+    const matchFilter =
+      activeFilter === 'all' ||
+      (activeFilter === 'pflicht' && m.type === 'pflicht') ||
+      (activeFilter === 'wahlpflicht' && m.type === 'wahlpflicht') ||
+      (activeFilter === 'hasPrereq' && (m.voraussetzungenPO.length > 0 || m.empfohleneVoraussetzungen.length > 0));
+    const q = searchQuery.toLowerCase();
+    const matchSearch = !q || m.name.toLowerCase().includes(q) || m.kuerzel.toLowerCase().includes(q);
+    const matchSidebar = activeSidebar === 'all' || activeSidebar === m.type ||
+      (activeSidebar.startsWith('sem') && m.semester === parseInt(activeSidebar.replace('sem','')));
+    return matchFilter && matchSearch && matchSidebar;
+  });
+}
+
+// ─────────── STATS ───────────
+function updateStats() {
+  const pflicht = modules.filter(m => m.type === 'pflicht');
+  document.getElementById('statTotal').textContent = modules.length;
+  document.getElementById('statPflicht').textContent = pflicht.length;
+  document.getElementById('statWP').textContent = modules.filter(m => m.type === 'wahlpflicht').length;
+  document.getElementById('statLP').textContent = pflicht.reduce((s, m) => s + m.lp, 0);
+}
+
+// ─────────── SIDEBAR ───────────
+function buildSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const sems = [...new Set(modules.map(m => m.semester))].sort((a,b)=>a-b);
+  sidebar.innerHTML = `
+    <h3>Ansicht</h3>
+    <div class="sidebar-item active" data-sidebar="all">
+      <span>🗂</span> Alle Module
+      <span class="badge">${modules.length}</span>
+    </div>
+    <div class="sidebar-item" data-sidebar="pflicht">
+      <span style="color:var(--pflicht)">●</span> Pflichtmodule
+      <span class="badge">${modules.filter(m=>m.type==='pflicht').length}</span>
+    </div>
+    <div class="sidebar-item" data-sidebar="wahlpflicht">
+      <span style="color:var(--wahlpflicht)">●</span> Wahlpflicht
+      <span class="badge">${modules.filter(m=>m.type==='wahlpflicht').length}</span>
+    </div>
+    <div class="sidebar-divider"></div>
+    <h3>Nach Semester</h3>
+    ${sems.map(s => {
+      const count = modules.filter(m=>m.semester===s).length;
+      return `<div class="sidebar-item" data-sidebar="sem${s}">
+        <span style="font-family:'DM Mono',monospace;font-size:.8rem">S${s}</span>
+        ${s===4?'Sem. 4–5':'Sem. '+s}
+        <span class="badge">${count}</span>
+      </div>`;
+    }).join('')}
+  `;
+  sidebar.querySelectorAll('.sidebar-item').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      activeSidebar = el.dataset.sidebar;
+      renderBoard();
+    });
+  });
+}
+
+// ─────────── BOARD ───────────
+function renderBoard() {
+  const board = document.getElementById('board');
+  const visible = getVisibleModules();
+
+  if (visible.length === 0) {
+    board.innerHTML = `
+      <div class="empty"><span>🔍</span>Keine Module gefunden.<br>Filter oder Suche anpassen.</div>`;
+    return;
+  }
+
+  const pflichtVisible = visible.filter(m => m.type === 'pflicht');
+  const wpVisible = visible.filter(m => m.type === 'wahlpflicht');
+
+  let html = '';
+
+  if (pflichtVisible.length > 0) {
+    const sems = [...new Set(pflichtVisible.map(m => m.semester))].sort((a,b)=>a-b);
+    const semLabels = {1:'Wintersemester',2:'Sommersemester',3:'Wintersemester',4:'Sommersemester',5:'Wintersemester',6:'Sommersemester'};
+    sems.forEach(s => {
+      const mods = pflichtVisible.filter(m => m.semester === s);
+      if (mods.length === 0) return;
+      const lp = mods.reduce((a,m) => a+m.lp, 0);
+      html += `
+        <div class="sem-section">
+          <div class="sem-header">
+            <div class="sem-label">SEM. ${s}</div>
+            <div class="sem-title">${s===4?'4. + 5. Semester':s+'. Semester'} · ${semLabels[s]||''}</div>
+            <div class="sem-line"></div>
+            <div class="sem-lp">${lp} LP</div>
+          </div>
+          <div class="cards-grid">
+            ${mods.map((m,i) => renderCard(m, i)).join('')}
+          </div>
+        </div>`;
+    });
+  }
+
+  if (wpVisible.length > 0) {
+    const sems = [...new Set(wpVisible.map(m => m.semester))].sort((a,b)=>a-b);
+    html += `
+      <div class="wp-section">
+        <div class="wp-header">
+          <div class="wp-label">WAHLPFLICHT</div>
+          <div class="sem-title">Wahlpflichtmodule</div>
+          <div class="sem-line"></div>
+          <div class="sem-lp">${wpVisible.length} Module · ${wpVisible.reduce((a,m)=>a+m.lp,0)} LP</div>
+        </div>`;
+    sems.forEach(s => {
+      const mods = wpVisible.filter(m => m.semester === s);
+      if (mods.length === 0) return;
+      html += `
+        <div style="margin-bottom:1.25rem">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:.6rem;padding-left:.25rem">
+            Ab ${s}. Semester empfohlen
+          </div>
+          <div class="cards-grid">
+            ${mods.map((m,i) => renderCard(m,i)).join('')}
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Studienverlauf guide
+  html += renderGuide();
+
+  board.innerHTML = html;
+
+  // Animate with delays
+  board.querySelectorAll('.card').forEach((card, i) => {
+    card.style.animationDelay = (i * 0.04) + 's';
+    card.addEventListener('click', () => openDrawer(card.dataset.id));
+  });
+}
+
+function renderCard(m, i) {
+  const hasOfficialPrereq = m.voraussetzungenPO.length > 0;
+  const hasRecommended = m.empfohleneVoraussetzungen.length > 0;
+  const prereqChips = m.empfohleneVoraussetzungen.slice(0,3).map(p =>
+    `<span class="prereq-chip">${p}</span>`).join('');
+
+  return `<div class="card ${m.type}" data-id="${m.id}">
+    <div class="card-top">
+      <div class="card-kuerzel">${m.kuerzel}</div>
+      <div class="card-badges">
+        <span class="badge-lp">${m.lp} LP</span>
+        ${hasOfficialPrereq ? '<span class="badge-icon" title="Formale Voraussetzung">⚠️</span>' : ''}
+        ${(!hasOfficialPrereq && hasRecommended) ? '<span class="badge-icon" title="Empfohlene Voraussetzung">💡</span>' : ''}
+      </div>
+    </div>
+    <div class="card-name">${m.name}</div>
+    <div class="card-meta">
+      <span>📅 Sem. ${m.semester}</span>
+      <span>🌐 ${m.sprache.split(',')[0]}</span>
+    </div>
+    ${prereqChips ? `<div class="prereq-chips">${prereqChips}</div>` : ''}
+  </div>`;
+}
+
+function renderGuide() {
+  return `
+    <div class="guide-section" style="margin-top:2rem">
+      <div class="guide-title">🗺 Studienverlauf verstehen</div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="icon">🌱</div>
+          <h4>Starke Einstiegsmodule</h4>
+          <p>Beginne mit <strong>EPR</strong> (Programmierung), <strong>LDS</strong> (Logik) und <strong>MGR</strong> (Mathematik) – diese bilden die Grundlage für fast alle weiteren Module.</p>
+        </div>
+        <div class="guide-card">
+          <div class="icon">🔗</div>
+          <h4>Abhängigkeitskette</h4>
+          <p><strong>EPR → OPR → ADS → SPIN</strong> ist die zentrale Programmier-Kette. Alle drei sind formale Voraussetzung für das Softwareprojekt.</p>
+        </div>
+        <div class="guide-card">
+          <div class="icon">⚙️</div>
+          <h4>Systemnah denken</h4>
+          <p><strong>TGI → BSY → REN</strong> bildet den technischen Pfad. Wer sich für IT-Betrieb interessiert, kann danach <strong>BKV</strong> oder <strong>ECC</strong> wählen.</p>
+        </div>
+        <div class="guide-card">
+          <div class="icon">🎓</div>
+          <h4>Für Wahlpflicht</h4>
+          <p>Wer KI interessiert: <strong>ADS + LDS + SLA → KI</strong>. Für Web: <strong>DBA → DOW, KNG</strong>. Für Security: <strong>ITS, PRAX</strong> – keine Voraussetzungen nötig!</p>
+        </div>
+        <div class="guide-card">
+          <div class="icon">📐</div>
+          <h4>Mathematik nicht unterschätzen</h4>
+          <p><strong>MGR und SLA</strong> sind Empfehlungen für viele Wahlpflichtmodule wie Bildverarbeitung, Robotik, Data Science und medizinische Informatik.</p>
+        </div>
+        <div class="guide-card">
+          <div class="icon">🚀</div>
+          <h4>Abschlussphase</h4>
+          <p>Das <strong>SPIN</strong>-Projekt läuft über Semester 4–5. Die <strong>Praxisphase (PXP)</strong> im 6. Semester erfordert bestandene Module aus Sem. 1–3.</p>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─────────── DRAWER ───────────
+function openDrawer(id) {
+  const m = getModule(id);
+  if (!m) return;
+
+  document.getElementById('dKuerzel').textContent = m.kuerzel;
+  document.getElementById('dName').textContent = m.name;
+  document.getElementById('dSubtitle').textContent = m.subtitle || '';
+
+  const typeLabel = m.type === 'pflicht' ? '🔵 Pflichtmodul' : '🟣 Wahlpflichtmodul';
+  document.getElementById('dMeta').innerHTML = `
+    <div class="meta-chip hl">📅 ${m.semester}. Semester</div>
+    <div class="meta-chip green">🎓 ${m.lp} Leistungspunkte</div>
+    <div class="meta-chip">${typeLabel}</div>
+    <div class="meta-chip">🌐 ${m.sprache}</div>
+    <div class="meta-chip amber">🗓 ${m.turnus}</div>
+  `;
+
+  const officialPrereqs = m.voraussetzungenPO.filter(p => p && p !== 'Keine' && !p.startsWith('Siehe'));
+  const recPrereqs = m.empfohleneVoraussetzungen.filter(p => p);
+
+  document.getElementById('dBody').innerHTML = `
+    <!-- Überblick -->
+    <div class="section">
+      <div class="section-title">Überblick</div>
+      <div class="section-content">
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div style="display:flex;gap:.75rem">
+            <span style="color:var(--text3);min-width:80px;font-size:.8rem">Dozent</span>
+            <span>${m.dozent}</span>
+          </div>
+          <div style="display:flex;gap:.75rem">
+            <span style="color:var(--text3);min-width:80px;font-size:.8rem">Lehrform</span>
+            <span>${m.lehrform}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voraussetzungen -->
+    <div class="section">
+      <div class="section-title">Voraussetzungen</div>
+      ${officialPrereqs.length > 0 ? `
+        <div style="margin-bottom:.75rem">
+          <div style="font-size:.75rem;color:var(--warn);margin-bottom:.4rem">⚠️ Formale Voraussetzungen (laut PO)</div>
+          <div class="prereq-graph">
+            ${officialPrereqs.map(p => {
+              const mod = getModule(p);
+              return `<div class="prereq-node official" data-goto="${p}" title="${mod?mod.name:p}">
+                ${p} ${mod ? '→' : ''}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : '<p style="color:var(--accent3);font-size:.85rem">✓ Keine formalen Voraussetzungen</p>'}
+
+      ${recPrereqs.length > 0 ? `
+        <div style="margin-top:.75rem">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:.4rem">💡 Empfohlene Voraussetzungen</div>
+          <div class="prereq-graph">
+            ${recPrereqs.map(p => {
+              const mod = getModule(p);
+              return `<div class="prereq-node" data-goto="${p}" title="${mod?mod.name:p}">
+                ${p}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- Lernziele -->
+    <div class="section">
+      <div class="section-title">Lernziele</div>
+      <div class="section-content">${m.lernziele}</div>
+    </div>
+
+    <!-- Inhalte -->
+    <div class="section">
+      <div class="section-title">Inhalte</div>
+      <ul class="content-list">
+        ${m.inhalte.map(i => `<li>${i}</li>`).join('')}
+      </ul>
+    </div>
+
+    <!-- Prüfung -->
+    <div class="section">
+      <div class="section-title">Prüfung</div>
+      <div class="meta-chip amber" style="display:inline-flex">📝 ${m.pruefung}</div>
+    </div>
+
+    <!-- Literatur -->
+    <div class="section">
+      <div class="section-title">Literatur</div>
+      <div class="section-content" style="font-size:.82rem">${m.literatur}</div>
+    </div>
+  `;
+
+  // Prereq node clicks
+  document.querySelectorAll('.prereq-node[data-goto]').forEach(el => {
+    el.addEventListener('click', () => {
+      const target = el.dataset.goto;
+      if (getModule(target)) openDrawer(target);
+    });
+  });
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ─────────── INIT ───────────
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('overlay')) closeDrawer();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderBoard();
+});
+
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeFilter = pill.dataset.filter;
+    renderBoard();
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDrawer();
+});
+
+updateStats();
+buildSidebar();
+renderBoard();
+</script>
+</body>
+</html>
