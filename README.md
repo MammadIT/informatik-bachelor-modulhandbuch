@@ -15,11 +15,3 @@ Eine übersichtliche, inoffizielle Website für die Module des Informatik-Bachel
 ## Hintergrund
 - Das offizielle Modulhandbuch war etwas unübersichtlich und verstreut.
 - Diese Website bereitet die Inhalte deshalb kompakter und übersichtlicher auf.
-
-## Mithelfen
-- Fehler gefunden?
-- Inhalte ergänzen?
-- Vorschläge zur Verbesserung?
-
-GitHub:
-- https://github.com/MammadIT/informatik-bachelor-modulhandbuch
