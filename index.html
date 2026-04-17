@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Curriculum Explorer · Informatik Bachelor · WH Gelsenkirchen</title>
 <link rel="icon" type="image/png" href="output-onlinepngtools.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
+    padding: env(safe-area-inset-top) 2rem 0;
     transition: background .25s, border-color .25s;
   }
   .header-inner {
@@ -86,7 +86,7 @@
   }
   .logo span { color: var(--accent); }
   .search-wrap {
-    flex: 1; max-width: 360px; position: relative;
+    flex: 1; max-width: 360px; min-width: 0; position: relative;
   }
   .search-wrap input {
     width: 100%; padding: .5rem 2.5rem .5rem 2.5rem;
@@ -166,6 +166,104 @@
     display: flex; gap: .35rem; flex-wrap: nowrap;
     margin-left: auto;
   }
+
+  .view-toggle {
+    display: flex; gap: .35rem; flex-wrap: nowrap;
+    margin-left: .5rem;
+  }
+
+  .semester-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
+    align-items: start;
+  }
+  .semester-columns .sem-section {
+    margin-bottom: 0;
+    min-width: 0;
+  }
+  .semester-columns .sem-section:not(:nth-child(-n+3)) {
+    margin-top: 1.15rem;
+  }
+  .semester-columns .sem-header {
+    align-items: flex-start;
+    gap: .65rem;
+    margin-bottom: 1.05rem;
+    min-height: auto;
+  }
+  .semester-columns .sem-title {
+    line-height: 1.28;
+    flex: 1;
+    min-width: 0;
+    font-size: 1.18rem;
+  }
+  .semester-columns .sem-line {
+    display: none;
+  }
+  .semester-columns .sem-lp {
+    margin-left: auto;
+    padding-top: .12rem;
+  }
+  .semester-columns .cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .semester-columns .card {
+    min-height: 176px;
+    height: 176px;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .semester-columns .card-top {
+    margin-bottom: .6rem;
+  }
+  .semester-columns .card-name {
+    min-height: 46px;
+    font-size: 0.94rem;
+    line-height: 1.28;
+    margin-bottom: .4rem;
+  }
+  .semester-columns .card-meta {
+    margin-top: .05rem;
+    gap: .55rem;
+  }
+  .semester-columns .card-meta span {
+    font-size: .72rem;
+  }
+  .semester-columns .prereq-chips {
+    margin-top: auto;
+    gap: .24rem;
+  }
+  .semester-columns .wp-section {
+    grid-column: 1 / -1;
+  }
+  .semester-columns .wp-header {
+    margin-bottom: .8rem;
+  }
+  .semester-columns .wp-section .sem-section {
+    margin-bottom: 1rem !important;
+  }
+  .semester-columns .wp-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .semester-columns .wp-cards-grid .card {
+    min-height: 176px;
+    height: 176px;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  @media (max-width: 1180px) {
+    .semester-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .semester-columns .wp-cards-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   .pill {
     padding: .34rem .95rem; border-radius: 20px; font-size: .88rem;
     font-weight: 500; cursor: pointer; border: 1px solid var(--border2);
@@ -440,10 +538,29 @@
   }
   .sem-title {
     font-family: 'DM Serif Display', serif;
-    font-size: 1.1rem; color: var(--text);
+    font-size: 1.18rem; color: var(--text);
+    line-height: 1.2;
   }
   .sem-lp { font-size: .78rem; color: var(--text3); margin-left: auto; white-space: nowrap; }
   .sem-line { flex: 1; height: 1px; background: var(--border); }
+
+  .semester-columns .sem-header {
+    align-items: flex-start;
+    gap: .75rem;
+    margin-bottom: 1.05rem;
+  }
+  .semester-columns .sem-title {
+    font-size: 1.12rem;
+    line-height: 1.14;
+  }
+  .semester-columns .sem-lp {
+    margin-left: .35rem;
+    font-size: .72rem;
+    padding-top: .08rem;
+  }
+  .semester-columns .sem-line {
+    margin-top: .8rem;
+  }
 
   /* Professor filter moved to sidebar */
   .prof-filter-row { display: none; }
@@ -633,12 +750,12 @@
   .guide-subtitle { font-size: .85rem; color: var(--text2); line-height: 1.55; }
   .guide-disclaimer {
     display: inline-flex; align-items: center; gap: .4rem;
-    font-size: .75rem; color: var(--warn); margin-top: .75rem;
-    background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2);
+    font-size: .75rem; color: var(--accent); margin-top: .75rem;
+    background: rgba(79,142,247,.08); border: 1px solid rgba(79,142,247,.22);
     border-radius: 8px; padding: .4rem .8rem; line-height: 1.4;
   }
   html[data-theme="light"] .guide-disclaimer {
-    background: rgba(217,119,6,.07); border-color: rgba(217,119,6,.18);
+    background: rgba(37,99,235,.07); border-color: rgba(37,99,235,.20); color: var(--accent);
   }
   .paths-grid {
     display: grid;
@@ -772,14 +889,25 @@
   /* mobile */
   @media (max-width: 900px) {
     .sidebar { display: none; }
-    .header-inner { gap: .6rem; }
-    .filter-pills { display: none; }
+    .header-inner { gap: .6rem; flex-wrap: wrap; height: auto; padding: .7rem 0; }
+    .search-wrap { order: 3; max-width: none; width: 100%; }
+    .filter-pills, .view-toggle { display: none; }
     .board { padding: 1rem 1rem 3rem; }
     .guide-section { padding: 1.5rem; }
     .paths-grid { grid-template-columns: 1fr; }
+    .semester-columns { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
+    header { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+    .header-inner { gap: .55rem; }
+    .logo { font-size: 1.08rem; min-width: 0; }
+    .theme-switch { width: 58px; height: 34px; }
+    .theme-switch-knob { width: 26px; height: 26px; }
+    html[data-theme="light"] .theme-switch-knob { transform: translateX(24px); }
+    .search-wrap input { font-size: .86rem; }
+    .hero { padding: 2rem 1rem 1.25rem; }
     .hero-title-row { gap: .55rem; }
+    .hero h1 { font-size: clamp(1.4rem, 10vw, 2.5rem); }
     .hero-link {
       width: 34px;
       height: 34px;
@@ -808,6 +936,10 @@
       <button class="pill" data-filter="pflicht">Pflicht</button>
       <button class="pill wp" data-filter="wahlpflicht">Wahlpflicht</button>
       <button class="pill" data-filter="hasPrereq">Mit Voraussetzungen</button>
+    </div>
+    <div class="view-toggle" id="viewToggle">
+      <button class="pill active" data-view="grid">Grid</button>
+      <button class="pill" data-view="columns">Spalten</button>
     </div>
     <label class="theme-switch" id="themeToggle" title="Zwischen Dark Mode und Light Mode umschalten" aria-label="Design umschalten">
       <input type="checkbox" id="themeToggleInput" aria-label="Design umschalten">
@@ -839,7 +971,6 @@
         <p>Westfälische Hochschule · Fachbereich Informatik und Kommunikation</p>
       </div>
       <div class="stand-badge" aria-label="Stand des Modulhandbuchs: 15. April 2026">
-        <span class="stand-icon">📄</span>
         <span class="stand-label">Stand</span>
         <span class="stand-date">15. April 2026</span>
       </div>
@@ -1466,6 +1597,7 @@ let activeProfessorFilter = '';
 const activeProfessorBySemester = {}; // legacy; kept for compatibility
 let suppressProfessorReset = false;
 let activeSuggestionIndex = -1;
+let currentView = localStorage.getItem('ce-view') || 'grid';
 
 // ─────────── THEME ───────────
 (function initTheme() {
@@ -1531,7 +1663,14 @@ function setSidebarActiveValue(value) {
 
 function setTopFilterActiveValue(value) {
   document.querySelectorAll('.pill').forEach(p => {
+    if (!p.dataset.filter) return;
     p.classList.toggle('active', p.dataset.filter === value);
+  });
+}
+
+function setViewActiveValue(value) {
+  document.querySelectorAll('[data-view]').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === value);
   });
 }
 
@@ -1776,7 +1915,7 @@ function buildSidebar() {
   sidebar.innerHTML = `
     <h3>Ansicht</h3>
     <div class="sidebar-item active" data-sidebar="all">
-      <span>🗂</span> Alle Module
+      <span style="font-size:1.02rem;line-height:1;color:var(--accent)">◈</span> Alle Module
       <span class="badge">${modules.length}</span>
     </div>
     <div class="sidebar-item" data-sidebar="pflicht">
@@ -1860,7 +1999,6 @@ function renderSidebarProfessors() {
 function renderBoard() {
   const board = document.getElementById('board');
   const sems = getSemestersToShow();
-  const semLabels = {1:'Wintersemester',2:'Sommersemester',3:'Wintersemester',4:'Sommersemester',5:'Wintersemester',6:'Sommersemester'};
 
   // Group by pflicht / wahlpflicht based on sidebar
   const showPflicht = activeSidebar !== 'wahlpflicht';
@@ -1877,6 +2015,9 @@ function renderBoard() {
     return;
   }
 
+  const effectiveView = activeSidebar.startsWith('sem') ? 'grid' : currentView;
+  const wrapperClass = effectiveView === 'columns' ? 'semester-columns' : '';
+  if (wrapperClass) html += `<div class="${wrapperClass}">`;
 
   // Pflicht sections by semester
   if (showPflicht) {
@@ -1893,7 +2034,7 @@ function renderBoard() {
         <div class="sem-section" data-sem="${s}" data-type="pflicht">
           <div class="sem-header">
             <div class="sem-label">SEM. ${s}</div>
-            <div class="sem-title">${s===4?'Semester 4–5':s+'. Semester'} · ${semLabels[s]||''}</div>
+            <div class="sem-title">${s===4?'Semester 4–5':s+'. Semester'}</div>
             <div class="sem-line"></div>
             <div class="sem-lp">${lp} LP</div>
           </div>
@@ -1919,22 +2060,30 @@ function renderBoard() {
           <div class="sem-line"></div>
           <div class="sem-lp">${allWP.length} Module</div>
         </div>`;
-      wpSems.forEach(s => {
-        const mods = getVisibleModulesForSemester(s).filter(m=>m.type==='wahlpflicht');
-        if (mods.length===0) return;
-        html += `
-          <div class="sem-section" data-sem="${s}" data-type="wahlpflicht" style="margin-bottom:1.75rem">
-            <div style="font-size:.75rem;color:var(--text3);margin-bottom:.5rem;padding-left:.1rem">
-              Ab ${s}. Semester empfohlen
-            </div>
-            <div class="cards-grid">
-              ${mods.map((m,i) => renderCard(m,i)).join('')}
-            </div>
-          </div>`;
-      });
+      if (effectiveView === 'columns') {
+        html += `<div class="wp-cards-grid">
+          ${allWP.map((m,i) => renderCard(m,i)).join('')}
+        </div>`;
+      } else {
+        wpSems.forEach(s => {
+          const mods = getVisibleModulesForSemester(s).filter(m=>m.type==='wahlpflicht');
+          if (mods.length===0) return;
+          html += `
+            <div class="sem-section" data-sem="${s}" data-type="wahlpflicht" style="margin-bottom:1.75rem">
+              <div style="font-size:.75rem;color:var(--text3);margin-bottom:.5rem;padding-left:.1rem">
+                Ab ${s}. Semester empfohlen
+              </div>
+              <div class="cards-grid">
+                ${mods.map((m,i) => renderCard(m,i)).join('')}
+              </div>
+            </div>`;
+        });
+      }
       html += `</div>`;
     }
   }
+
+  if (wrapperClass) html += `</div>`;
 
   html += renderGuide();
 
@@ -2256,11 +2405,20 @@ document.getElementById('searchClear').addEventListener('click', () => {
   renderBoard();
   input.focus();
 });
-document.querySelectorAll('.pill').forEach(pill => {
+document.querySelectorAll('.pill[data-filter]').forEach(pill => {
   pill.addEventListener('click', () => {
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.pill[data-filter]').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
     activeFilter = pill.dataset.filter;
+    renderBoard();
+  });
+});
+
+document.querySelectorAll('[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentView = btn.dataset.view;
+    localStorage.setItem('ce-view', currentView);
+    setViewActiveValue(currentView);
     renderBoard();
   });
 });
@@ -2288,6 +2446,7 @@ updateScrollTopButton();
 
 updateStats();
 buildSidebar();
+setViewActiveValue(currentView);
 updateSearchClear();
 renderBoard();
 </script>
